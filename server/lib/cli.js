@@ -1,5 +1,10 @@
 const path = require('path')
+const fs = require('fs')
+
+// Base directory (project root)
 const baseDir = path.resolve(path.dirname(require.main.filename), '..')
+
+// Default env configuration
 const env = {
   ...process.env,
   NODE_ENV: process.env.NODE_ENV,
@@ -9,8 +14,11 @@ const env = {
   KF_SERVER_URL_PATH: '/',
 }
 
+// ────────────────────────────────────────────────
+// CLI OPTIONS
+// ────────────────────────────────────────────────
 const yargs = require('yargs')
-  .version(false) // disable default handler
+  .version(false)
   .option('p', {
     alias: 'port',
     describe: 'Web server port (default=auto)',
@@ -45,6 +53,11 @@ const yargs = require('yargs')
     number: true,
     requiresArg: true,
   })
+  .option('db', {
+    describe: 'Database path (overrides KF_SERVER_DB_PATH)',
+    requiresArg: true,
+    type: 'string',
+  })
   .option('v', {
     alias: 'version',
     describe: 'Output the Karaoke Forever Server version and exit',
@@ -58,8 +71,6 @@ let argv = yargs.argv
 let _app
 if (process.versions.electron) {
   _app = require('electron').app
-
-  // see https://github.com/yargs/yargs/blob/master/docs/api.md#argv
   if (_app.isPackaged) {
     argv = yargs.parse(process.argv.slice(1))
   }
@@ -74,7 +85,9 @@ if (argv.scan) {
   env.KF_SERVER_SCAN = true
 }
 
-// settings via CLI take precendence over env vars
+// ────────────────────────────────────────────────
+// ENVIRONMENT VARIABLE MAPPING
+// ────────────────────────────────────────────────
 const opts = {
   port: 'KF_SERVER_PORT',
   urlPath: 'KF_SERVER_URL_PATH',
@@ -84,6 +97,7 @@ const opts = {
   serverLogLevel: 'KF_SERVER_LOG_LEVEL',
 }
 
+// CLI options override environment vars
 Object.keys(opts).forEach(key => {
   if (typeof argv[key] !== 'undefined') {
     env[opts[key]] = argv[key]
@@ -93,4 +107,30 @@ Object.keys(opts).forEach(key => {
   }
 })
 
-module.exports = env
+// ────────────────────────────────────────────────
+// DATABASE PATH LOGIC
+// ────────────────────────────────────────────────
+let dbPath
+
+if (argv.db) {
+  // 1️⃣ CLI option takes precedence
+  dbPath = path.resolve(argv.db)
+} else if (process.env.KF_SERVER_DB_PATH) {
+  // 2️⃣ Environment variable
+  dbPath = process.env.KF_SERVER_DB_PATH
+} else {
+  // 3️⃣ Default fallback
+  dbPath = path.join(baseDir, 'db')
+}
+
+// Ensure folder exists (optional)
+if (!fs.existsSync(dbPath)) {
+  fs.mkdirSync(dbPath, { recursive: true })
+}
+
+env.KF_SERVER_DB_PATH = dbPath
+process.env.KF_SERVER_DB_PATH = dbPath
+
+// ────────────────────────────────────────────────
+module
+  .exports = env
