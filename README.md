@@ -1,6 +1,8 @@
 # ABOUT THIS FORK
 
-You're looking at gazugafan's fork of Karaoke Forever, which includes the following new features...
+You're looking at thomasesr's fork of gazugafan's fork of Karaoke Forever, which includes the following new features...
+
+* Dockerfile for building docker image with ffmpeg, spleeter in Node 20 image and Python 3.11. The server/Dockerfile is for only YouTube Downloads of pre-made Karaokê mixes. the server/Dockerfile-Spleeter also includes Spleeter for processing normal music videos into Karaoke mixes.
 
 * YouTube search with automatic vocal removal and accurate word-level lyrics alignment
 * Options to NOT require username and/or password when creating new accounts
@@ -9,6 +11,21 @@ You're looking at gazugafan's fork of Karaoke Forever, which includes the follow
 [Check out this demo to see it in action](https://www.youtube.com/watch?v=zWa8k6degVs)
 
 ## Getting started with the fork
+For docker container you'll need Docker
+for Spleeter support do:
+ -  git clone https://github.com/thomasesr/karaoke-forever-docker.git
+ -  cd into server
+ -  docker build -t karaoke-forever:spleeter ./Dockerfile-Spleeter
+ -  to run use the command:
+  docker run -d \
+  -e KF-SERVER-DB-PATH=/config \
+  -e KF-SERVER-PORT=3000 \
+  -p 3000:3000 \
+  -v /home/thomas/Music:/media \
+  -v kf-config:/config \
+  --name karaoke-forever \
+  --restart unless-stopped \
+  karaoke-forever:spleeter
 
 At a minimum, you'll need...
 * [Node.js](https://nodejs.org/en/) 18 or later
