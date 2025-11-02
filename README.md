@@ -4,6 +4,8 @@ You're looking at thomasesr's fork of gazugafan's fork of Karaoke Forever, which
 
 * Dockerfile for building docker image with ffmpeg, spleeter in Node 20 image and Python 3.11. The server/Dockerfile is for only YouTube Downloads of pre-made Karaokê mixes. the server/Dockerfile-Spleeter also includes Spleeter for processing normal music videos into Karaoke mixes.
 
+* Because of Spleeter 2stem files the image is about 6GB in size.
+
 * YouTube search with automatic vocal removal and accurate word-level lyrics alignment
 * Options to NOT require username and/or password when creating new accounts
 * Case INsensitive usernames
