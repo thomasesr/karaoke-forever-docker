@@ -1,0 +1,16 @@
+services:
+  karaoke:
+    image: karaoke-forever:spleeter  # Custom image with Spleeter support
+    container_name: karaoke-forever
+    restart: unless-stopped
+    environment:
+      KF-SERVER-DB-PATH: /config     # Where to store DB and config
+      KF-SERVER-PORT: 3000           # Port inside the container
+    ports:
+      - "3000:3000"                  # Map host port 3000
+    volumes:
+      - /path/to/your/Music:/media    # Your music files
+      - kf-config:/config            # Persistent config volume
+
+volumes:
+  kf-config:
